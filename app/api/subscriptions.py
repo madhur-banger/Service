@@ -8,7 +8,7 @@ from app.db.crud import (
     create_subscription, get_subscription, get_subscriptions,
     update_subscription, delete_subscription
 )
-from app.db.models import WebhookDelivery, Subscription
+from app.db.models import WebhookDelivery, Subscription, DeliveryAttempt
 from app.schemas.subscription import (
     SubscriptionCreate, SubscriptionResponse, SubscriptionUpdate
 )
@@ -91,12 +91,22 @@ def update_subscription_api(
 
 @router.delete("/{subscription_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_subscription_api(subscription_id: uuid.UUID, db: Session = Depends(get_db)):
-    # First delete all related deliveries
+    # Step 1: Get all delivery IDs related to the subscription
+    delivery_ids = db.query(WebhookDelivery.id).filter(
+        WebhookDelivery.subscription_id == subscription_id
+    ).subquery()
+
+    # Step 2: Delete all related delivery attempts
+    db.query(DeliveryAttempt).filter(
+        DeliveryAttempt.delivery_id.in_(delivery_ids)
+    ).delete(synchronize_session=False)
+
+    # Step 3: Delete all related webhook deliveries
     db.query(WebhookDelivery).filter(
         WebhookDelivery.subscription_id == subscription_id
-    ).delete()
-    
-    # Then delete the subscription
+    ).delete(synchronize_session=False)
+
+    # Step 4: Delete the subscription
     success = delete_subscription(db, subscription_id=subscription_id)
     if not success:
         raise HTTPException(status_code=404, detail="Subscription not found")
