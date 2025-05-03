@@ -112,3 +112,19 @@ def delete_subscription_api(subscription_id: uuid.UUID, db: Session = Depends(ge
         raise HTTPException(status_code=404, detail="Subscription not found")
     
     return None
+
+@router.put("/subscriptions/{subscription_id}/event-types")
+async def update_subscription_event_types(
+    subscription_id: uuid.UUID,
+    event_types: list[str],
+    db: Session = Depends(get_db)
+):
+    subscription = get_subscription(db, subscription_id)
+    if not subscription:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+    
+    subscription.event_types = event_types
+    db.commit()
+    
+    return {"id": str(subscription.id), "event_types": subscription.event_types}
+

@@ -26,6 +26,8 @@ class Subscription(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     is_active = Column(Boolean, default=True)
 
+    event_types = Column(JSON, default=list)
+
 class WebhookDelivery(Base):
     __tablename__ = "webhook_deliveries"
     
@@ -36,6 +38,8 @@ class WebhookDelivery(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True))
     attempts_count = Column(Integer, default=0)
+
+    event_type = Column(String, nullable=True)
 
 class DeliveryAttempt(Base):
     __tablename__ = "delivery_attempts"

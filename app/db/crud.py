@@ -4,13 +4,16 @@ import uuid
 from datetime import datetime, timedelta
 from app.config import settings
 from typing import List, Optional
+from sqlalchemy import or_, cast, String
+from sqlalchemy.orm import Session
 
 # Subscription CRUD operations
-def create_subscription(db: Session, name: str, target_url: str, secret_key: Optional[str] = None):
+def create_subscription(db: Session, name: str, target_url: str, secret_key: Optional[str] = None, event_types: Optional[List[str]] = None):
     subscription = Subscription(
         name=name,
         target_url=target_url,
-        secret_key=secret_key
+        secret_key=secret_key,
+        event_types=event_types if event_types else []
     )
     db.add(subscription)
     db.commit()
@@ -24,11 +27,38 @@ def get_subscription(db: Session, subscription_id: uuid.UUID):
 def get_subscriptions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Subscription).offset(skip).limit(limit).all()
 
+def get_subscriptions_for_event_type(db: Session, event_type: Optional[str] = None):
+    """Get all active subscriptions that match the given event type or have no event type preferences"""
+    query = db.query(Subscription).filter(Subscription.is_active == True)
+
+    if event_type:
+        # Use a text-based approach that works regardless of JSON structure
+        query = query.filter(
+            or_(
+                Subscription.event_types.is_(None),  # No event types specified (accepts all)
+                cast(Subscription.event_types, String) == '[]',  # Empty array as string
+                cast(Subscription.event_types, String).like(f'%"{event_type}"%')  # String contains the event_type
+            )
+        )
+
+    return query.all()
+
 def update_subscription(db: Session, subscription_id: uuid.UUID, data: dict):
     subscription = get_subscription(db, subscription_id)
     if subscription:
         for key, value in data.items():
             setattr(subscription, key, value)
+        subscription.updated_at = datetime.now()
+        db.commit()
+        db.refresh(subscription)
+    
+    return subscription
+
+def update_subscription_event_types(db: Session, subscription_id: uuid.UUID, event_types: List[str]):
+    """Update just the event types for a subscription"""
+    subscription = get_subscription(db, subscription_id)
+    if subscription:
+        subscription.event_types = event_types
         subscription.updated_at = datetime.now()
         db.commit()
         db.refresh(subscription)
@@ -44,7 +74,7 @@ def delete_subscription(db: Session, subscription_id: uuid.UUID):
     return False
 
 # Webhook Delivery CRUD operations
-def create_webhook_delivery(db: Session, subscription_id: uuid.UUID, payload: dict):
+def create_webhook_delivery(db: Session, subscription_id: uuid.UUID, payload: dict, event_type: str = None):
     # Calculate expiration time (72 hours from now)
     expires_at = datetime.now() + timedelta(hours=settings.LOG_RETENTION_HOURS)
     
@@ -52,6 +82,7 @@ def create_webhook_delivery(db: Session, subscription_id: uuid.UUID, payload: di
         subscription_id=subscription_id,
         payload=payload,
         status=DeliveryStatus.PENDING,
+        event_type=event_type,
         expires_at=expires_at
     )
     db.add(delivery)
@@ -98,6 +129,16 @@ def get_recent_delivery_attempts(db: Session, subscription_id: uuid.UUID, limit:
         .join(WebhookDelivery, DeliveryAttempt.delivery_id == WebhookDelivery.id)\
         .filter(WebhookDelivery.subscription_id == subscription_id)\
         .order_by(DeliveryAttempt.timestamp.desc())\
+        .limit(limit)\
+        .all()
+
+# Filter deliveries by event type
+def get_deliveries_by_event_type(db: Session, event_type: str, skip: int = 0, limit: int = 100):
+    """Get all webhook deliveries with a specific event type"""
+    return db.query(WebhookDelivery)\
+        .filter(WebhookDelivery.event_type == event_type)\
+        .order_by(WebhookDelivery.created_at.desc())\
+        .offset(skip)\
         .limit(limit)\
         .all()
 
