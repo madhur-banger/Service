@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 import uuid
-
+import logging
 from app.db.base import get_db
 from app.db.crud import (
     create_subscription, get_subscription, get_subscriptions,
@@ -13,6 +13,11 @@ from app.schemas.subscription import (
 )
 
 router = APIRouter()
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # Set log level to INFO
+
 
 @router.post("/", response_model=SubscriptionResponse, status_code=status.HTTP_201_CREATED)
 def create_subscription_api(subscription: SubscriptionCreate, db: Session = Depends(get_db)):
@@ -36,11 +41,37 @@ def read_subscription(subscription_id: uuid.UUID, db: Session = Depends(get_db))
     return db_subscription
 
 @router.put("/{subscription_id}", response_model=SubscriptionResponse)
-def update_subscription_api(subscription_id: uuid.UUID, subscription: SubscriptionUpdate, db: Session = Depends(get_db)):
-    db_subscription = update_subscription(db, subscription_id=subscription_id, data=subscription.dict(exclude_unset=True))
-    if db_subscription is None:
-        raise HTTPException(status_code=404, detail="Subscription not found")
-    return db_subscription
+def update_subscription_api(
+    subscription_id: uuid.UUID,
+    subscription: SubscriptionUpdate,
+    db: Session = Depends(get_db)
+):
+    try:
+        logger.info(f"Received request to update subscription with ID: {subscription_id}")
+        
+        update_data = subscription.dict(exclude_unset=True)
+
+        # Fix: Convert target_url (HttpUrl) to plain str
+        if "target_url" in update_data and update_data["target_url"] is not None:
+            update_data["target_url"] = str(update_data["target_url"])
+
+        db_subscription = update_subscription(
+            db, subscription_id=subscription_id, data=update_data
+        )
+        
+        if db_subscription is None:
+            logger.warning(f"Subscription with ID {subscription_id} not found.")
+            raise HTTPException(status_code=404, detail="Subscription not found")
+        
+        logger.info(f"Subscription with ID {subscription_id} successfully updated.")
+        return db_subscription
+    except Exception as e:
+        logger.error(f"Error occurred while updating subscription with ID {subscription_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal Error: {e}")
+
+
 
 @router.delete("/{subscription_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_subscription_api(subscription_id: uuid.UUID, db: Session = Depends(get_db)):

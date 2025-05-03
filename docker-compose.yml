@@ -40,7 +40,7 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/webhook_service
+      - DATABASE_URL=postgresql://neondb_owner:npg_SwdbrNq1QIi4@ep-withered-mouse-a40or4mx-pooler.us-east-1.aws.neon.tech/webhook-url?sslmode=require
       - REDIS_URL=redis://redis:6379/0
       - MAX_RETRY_ATTEMPTS=5
       - LOG_RETENTION_HOURS=72
