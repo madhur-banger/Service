@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   db:
@@ -31,7 +31,7 @@ services:
 
   api:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 3
     volumes:
       - .:/app  # You may remove this in production if not needed
     ports:
@@ -53,14 +53,15 @@ services:
 
   worker:
     build: .
-    command: celery -A app.tasks.worker worker --loglevel=info
+    command: celery -A app.tasks.worker worker --loglevel=info -Q deliveries,cleanup -E -n worker.%%h
     volumes:
       - .:/app  # You may remove this in production if not needed
     depends_on:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/webhook_service
+      - CELERY_HOSTNAME=worker-${HOSTNAME}
+      - DATABASE_URL=postgresql://neondb_owner:npg_SwdbrNq1QIi4@ep-withered-mouse-a40or4mx-pooler.us-east-1.aws.neon.tech/webhook-url?sslmode=require
       - REDIS_URL=redis://redis:6379/0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -68,6 +69,7 @@ services:
       retries: 5
       start_period: 5s
       timeout: 5s
+    scale: 8
 
 volumes:
   postgres_data:

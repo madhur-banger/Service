@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     # REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     MAX_RETRY_ATTEMPTS: int = int(os.getenv("MAX_RETRY_ATTEMPTS", "5"))
     LOG_RETENTION_HOURS: int = int(os.getenv("LOG_RETENTION_HOURS", "72"))
+    WEBHOOK_TIMEOUT: int = int(os.getenv("WEBHOOK_TIMEOUT","10"))
 
     model_config = ConfigDict(
         env_file=".env",

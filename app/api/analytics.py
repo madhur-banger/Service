@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import uuid
 from typing import List
-
+from app.db.models import WebhookDelivery, DeliveryAttempt 
 from app.db.base import get_db
 from app.db.crud import (
     get_webhook_delivery, get_delivery_attempts,
@@ -35,13 +35,14 @@ def get_recent_deliveries(subscription_id: uuid.UUID, limit: int = 20, db: Sessi
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
     
-    # Get recent deliveries
-    query = db.query(get_webhook_delivery.__annotations__['return'].__origin__) \
-        .filter(get_webhook_delivery.__annotations__['return'].__origin__.subscription_id == subscription_id) \
-        .order_by(get_webhook_delivery.__annotations__['return'].__origin__.created_at.desc()) \
-        .limit(limit)
+    # Query WebhookDelivery directly
+    deliveries = db.query(WebhookDelivery) \
+        .filter(WebhookDelivery.subscription_id == subscription_id) \
+        .order_by(WebhookDelivery.created_at.desc()) \
+        .limit(limit) \
+        .all()
     
-    return query.all()
+    return deliveries
 
 @router.get("/subscriptions/{subscription_id}/attempts", response_model=List[DeliveryAttemptResponse])
 def get_recent_attempts(subscription_id: uuid.UUID, limit: int = 20, db: Session = Depends(get_db)):

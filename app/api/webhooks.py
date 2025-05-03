@@ -13,7 +13,6 @@ router = APIRouter()
 async def ingest_webhook(
     subscription_id: uuid.UUID,
     payload: Dict[str, Any],
-    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     # Verify subscription exists
@@ -24,8 +23,9 @@ async def ingest_webhook(
     if not subscription.is_active:
         raise HTTPException(status_code=400, detail="Subscription is not active")
     
-    # Create webhook delivery record
+    # Create webhook delivery record - IMPORTANT: commit immediately
     delivery = create_webhook_delivery(db, subscription_id, payload)
+    db.commit()  # Explicit commit before task starts
     
     # Queue webhook processing task
     process_webhook.delay(str(delivery.id))

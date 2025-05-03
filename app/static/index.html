@@ -109,7 +109,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Subscription</h5>
+                    <h5 class="modal-title" id="subscriptionModalTitle">Add Subscription</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -131,6 +131,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="saveSubscriptionBtn">Save</button>
+                    <input type="hidden" id="editingSubscriptionId">
+
                 </div>
             </div>
         </div>
@@ -139,7 +141,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // API endpoints
-        const API_URL = '/api';
+        const API_URL = 'http://localhost:8000/api';
         
         // Load subscriptions on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -154,7 +156,7 @@
         // Load subscriptions
         async function loadSubscriptions() {
             try {
-                const response = await fetch(`${API_URL}/subscriptions`);
+                const response = await fetch(`${API_URL}/subscriptions/`);
                 const subscriptions = await response.json();
                 
                 const subscriptionsList = document.getElementById('subscriptionsList');
@@ -191,10 +193,12 @@
                                 <h6 class="card-subtitle mb-2 text-muted">ID: ${sub.id}</h6>
                                 <p class="card-text">Target URL: ${sub.target_url}</p>
                                 <p class="card-text">Secret Key: ${sub.secret_key ? '••••••••' : 'None'}</p>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-outline-primary me-2" onclick="viewDeliveries('${sub.id}')">View Deliveries</button>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewDeliveries('${sub.id}')">View Deliveries</button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editSubscription('${sub.id}', '${sub.name}', '${sub.target_url}', '${sub.secret_key || ''}')">Edit</button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="deleteSubscription('${sub.id}')">Delete</button>
                                 </div>
+
                             </div>
                         </div>
                     `;
@@ -222,33 +226,43 @@
             const nameInput = document.getElementById('nameInput');
             const targetUrlInput = document.getElementById('targetUrlInput');
             const secretKeyInput = document.getElementById('secretKeyInput');
-            
+            const editingId = document.getElementById('editingSubscriptionId').value;
+
             const subscriptionData = {
                 name: nameInput.value,
                 target_url: targetUrlInput.value,
                 secret_key: secretKeyInput.value || null
             };
-            
+
             try {
-                const response = await fetch(`${API_URL}/subscriptions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(subscriptionData)
-                });
-                
+                let response;
+                if (editingId) {
+                    // Update existing subscription
+                    response = await fetch(`${API_URL}/subscriptions/${editingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(subscriptionData)
+                    });
+                } else {
+                    // Create new subscription
+                    response = await fetch(`${API_URL}/subscriptions/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(subscriptionData)
+                    });
+                }
+
                 if (response.ok) {
-                    // Close modal and reload subscriptions
                     bootstrap.Modal.getInstance(document.getElementById('addSubscriptionModal')).hide();
                     nameInput.value = '';
                     targetUrlInput.value = '';
                     secretKeyInput.value = '';
-                    
+                    document.getElementById('editingSubscriptionId').value = '';
+                    document.getElementById('subscriptionModalTitle').textContent = 'Add Subscription';
                     loadSubscriptions();
                 } else {
                     const error = await response.json();
-                    alert(`Error: ${error.detail || 'Failed to create subscription'}`);
+                    alert(`Error: ${error.detail || 'Failed to save subscription'}`);
                 }
             } catch (error) {
                 console.error('Error saving subscription:', error);
@@ -302,6 +316,18 @@
                 alert('Error checking delivery. Please try again.');
             }
         }
+
+        function editSubscription(id, name, url, secretKey) {
+            document.getElementById('nameInput').value = name;
+            document.getElementById('targetUrlInput').value = url;
+            document.getElementById('secretKeyInput').value = secretKey || '';
+            document.getElementById('editingSubscriptionId').value = id;
+            document.getElementById('subscriptionModalTitle').textContent = 'Edit Subscription';
+            
+            const modal = new bootstrap.Modal(document.getElementById('addSubscriptionModal'));
+            modal.show();
+        }
+
         
         // Display delivery details
         function displayDeliveryDetails(delivery) {

@@ -20,7 +20,7 @@ COPY . .
 
 # Set environment variables for the app (these can be overridden in the Docker run command or in your cloud platform)
 ENV PORT=8000
-ENV DATABASE_URL=postgresql://postgres:postgres@db:5432/webhook_service
+ENV DATABASE_URL=postgresql://neondb_owner:npg_SwdbrNq1QIi4@ep-withered-mouse-a40or4mx-pooler.us-east-1.aws.neon.tech/webhook-url?sslmode=require
 ENV REDIS_URL=redis://redis:6379/0
 ENV MAX_RETRY_ATTEMPTS=5
 ENV LOG_RETENTION_HOURS=72
