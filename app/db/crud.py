@@ -4,10 +4,6 @@ import uuid
 from datetime import datetime, timedelta
 from app.config import settings
 from typing import List, Optional
-from app.core.cache import (
-    cache_subscription, get_cached_subscription, 
-    invalidate_subscription_cache
-)
 
 # Subscription CRUD operations
 def create_subscription(db: Session, name: str, target_url: str, secret_key: Optional[str] = None):
@@ -21,27 +17,13 @@ def create_subscription(db: Session, name: str, target_url: str, secret_key: Opt
     db.refresh(subscription)
     return subscription
 
-# Update get_subscription function to use cache
 def get_subscription(db: Session, subscription_id: uuid.UUID):
-    # Try to get from cache first
-    cached = get_cached_subscription(str(subscription_id))
-    if cached:
-        return cached
-    
-    # If not in cache, get from database
     subscription = db.query(Subscription).filter(Subscription.id == subscription_id).first()
-    
-    # If found, cache it
-    if subscription:
-        cache_subscription(str(subscription_id), subscription)
-    
     return subscription
-
 
 def get_subscriptions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Subscription).offset(skip).limit(limit).all()
 
-# Update update_subscription to invalidate cache
 def update_subscription(db: Session, subscription_id: uuid.UUID, data: dict):
     subscription = get_subscription(db, subscription_id)
     if subscription:
@@ -50,22 +32,14 @@ def update_subscription(db: Session, subscription_id: uuid.UUID, data: dict):
         subscription.updated_at = datetime.now()
         db.commit()
         db.refresh(subscription)
-        
-        # Invalidate cache
-        invalidate_subscription_cache(str(subscription_id))
     
     return subscription
 
-# Update delete_subscription to invalidate cache
 def delete_subscription(db: Session, subscription_id: uuid.UUID):
     subscription = get_subscription(db, subscription_id)
     if subscription:
         db.delete(subscription)
         db.commit()
-        
-        # Invalidate cache
-        invalidate_subscription_cache(str(subscription_id))
-        
         return True
     return False
 

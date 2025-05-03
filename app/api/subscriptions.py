@@ -12,10 +12,6 @@ from app.db.models import WebhookDelivery, Subscription
 from app.schemas.subscription import (
     SubscriptionCreate, SubscriptionResponse, SubscriptionUpdate
 )
-from app.core.cache import (
-    cache_subscription, get_cached_subscription, 
-    invalidate_subscription_cache
-)
 
 router = APIRouter()
 
@@ -34,51 +30,21 @@ def create_subscription_api(subscription: SubscriptionCreate, db: Session = Depe
         secret_key=subscription.secret_key
     )
     
-    # Cache the newly created subscription
-    cache_subscription(
-        str(new_subscription.id), 
-        new_subscription.__dict__
-    )
-    
     return new_subscription
 
 
 @router.get("/", response_model=List[SubscriptionResponse])
 def read_subscriptions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    # Not caching the list endpoint as it could return many results
-    # and the data needs to be fresh for admin purposes
     subscriptions = get_subscriptions(db, skip=skip, limit=limit)
     return subscriptions
 
 
 @router.get("/{subscription_id}", response_model=SubscriptionResponse)
 def read_subscription(subscription_id: uuid.UUID, db: Session = Depends(get_db)):
-    subscription_id_str = str(subscription_id)
-    
-    # Try to get from cache first
-    cached_subscription = get_cached_subscription(subscription_id_str)
-    
-    if cached_subscription:
-        logger.info(f"Cache hit for subscription {subscription_id}")
-        # Convert back to Subscription model if needed
-        if not isinstance(cached_subscription, Subscription):
-            # Handle the case where we stored it as a dict
-            subscription_model = Subscription()
-            for key, value in cached_subscription.items():
-                if key != "_sa_instance_state":  # Skip SQLAlchemy state
-                    setattr(subscription_model, key, value)
-            return subscription_model
-        return cached_subscription
-    
-    # If not in cache, get from database
-    logger.info(f"Cache miss for subscription {subscription_id}, fetching from DB")
+    logger.info(f"Fetching subscription {subscription_id} from DB")
     db_subscription = get_subscription(db, subscription_id=subscription_id)
     if db_subscription is None:
         raise HTTPException(status_code=404, detail="Subscription not found")
-    
-    # Cache the subscription for future requests
-    # Use a longer TTL (1 hour) for frequently accessed subscriptions
-    cache_subscription(subscription_id_str, db_subscription.__dict__, ttl=3600)
     
     return db_subscription
 
@@ -114,9 +80,6 @@ def update_subscription_api(
         db.commit()
         db.refresh(db_subscription)
         
-        # Update cache with new data
-        cache_subscription(str(subscription_id), db_subscription.__dict__)
-        
         logger.info(f"Subscription {subscription_id} updated successfully")
         return db_subscription
         
@@ -137,8 +100,5 @@ def delete_subscription_api(subscription_id: uuid.UUID, db: Session = Depends(ge
     success = delete_subscription(db, subscription_id=subscription_id)
     if not success:
         raise HTTPException(status_code=404, detail="Subscription not found")
-    
-    # Invalidate cache for this subscription
-    invalidate_subscription_cache(str(subscription_id))
     
     return None
