@@ -612,53 +612,80 @@
         }
         
         // Save subscription
-        async function saveSubscription() {
-            const nameInput = document.getElementById('nameInput');
-            const targetUrlInput = document.getElementById('targetUrlInput');
-            const secretKeyInput = document.getElementById('secretKeyInput');
-            const editingId = document.getElementById('editingSubscriptionId').value;
+    async function saveSubscription() {
+    const nameInput = document.getElementById('nameInput');
+    const targetUrlInput = document.getElementById('targetUrlInput');
+    const secretKeyInput = document.getElementById('secretKeyInput');
+    const editingId = document.getElementById('editingSubscriptionId').value;
 
-            const subscriptionData = {
-                name: nameInput.value,
-                target_url: targetUrlInput.value,
-                secret_key: secretKeyInput.value || null
-            };
+    // Log the values to verify they're being captured
+    console.log('Name:', nameInput.value);
+    console.log('URL:', targetUrlInput.value);
+    console.log('Secret Key:', secretKeyInput.value);
 
-            try {
-                let response;
-                if (editingId) {
-                    // Update existing subscription
-                    response = await fetch(`${API_URL}/subscriptions/${editingId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(subscriptionData)
-                    });
-                } else {
-                    // Create new subscription
-                    response = await fetch(`${API_URL}/subscriptions/`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(subscriptionData)
-                    });
-                }
+    const subscriptionData = {
+        name: nameInput.value,
+        target_url: targetUrlInput.value,
+        secret_key: secretKeyInput.value || null
+    };
 
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('addSubscriptionModal')).hide();
-                    nameInput.value = '';
-                    targetUrlInput.value = '';
-                    secretKeyInput.value = '';
-                    document.getElementById('editingSubscriptionId').value = '';
-                    document.getElementById('subscriptionModalTitle').textContent = 'Add Subscription';
-                    loadSubscriptions();
-                } else {
-                    const error = await response.json();
-                    alert(`Error: ${error.detail || 'Failed to save subscription'}`);
-                }
-            } catch (error) {
-                console.error('Error saving subscription:', error);
-                alert('Error saving subscription. Please try again.');
-            }
+    // Log the entire payload for debugging
+    console.log('Sending data:', JSON.stringify(subscriptionData));
+
+    try {
+        let response;
+        if (editingId) {
+            // Update existing subscription
+            response = await fetch(`${API_URL}/subscriptions/${editingId}`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(subscriptionData)
+            });
+        } else {
+            // Create new subscription
+            response = await fetch(`${API_URL}/subscriptions/`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(subscriptionData)
+            });
         }
+
+        // Log raw response for debugging
+        console.log('Response status:', response.status);
+        
+        const responseText = await response.text();
+        console.log('Response body:', responseText);
+        
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('addSubscriptionModal')).hide();
+            nameInput.value = '';
+            targetUrlInput.value = '';
+            secretKeyInput.value = '';
+            document.getElementById('editingSubscriptionId').value = '';
+            document.getElementById('subscriptionModalTitle').textContent = 'Add Subscription';
+            loadSubscriptions();
+        } else {
+            // Try to parse JSON, but handle if it's not valid JSON
+            let errorDetail = 'Failed to save subscription';
+            try {
+                const error = JSON.parse(responseText);
+                errorDetail = error.detail || errorDetail;
+            } catch (e) {
+                errorDetail = responseText || errorDetail;
+            }
+            alert(`Error: ${errorDetail}`);
+        }
+    } catch (error) {
+        console.error('Error saving subscription:', error);
+        alert('Error saving subscription. Please try again.');
+    }
+}
         
         // Delete subscription
         async function deleteSubscription(id) {
