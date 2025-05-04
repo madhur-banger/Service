@@ -502,7 +502,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // API endpoints
-        const API_URL = 'http://localhost:8000/api';
+        // const API_URL = 'http://localhost:8000/api';
+        // const API_URL = 'https://webhook-service-nmzc.onrender.com//api';
+
+        const API_URL = window.location.hostname === 'localhost'
+        ?'http://localhost:8000/api'
+        :'https://webhook-service-nmzc.onrender.com/api';
         
         // Load subscriptions on page load
         document.addEventListener('DOMContentLoaded', function() {
