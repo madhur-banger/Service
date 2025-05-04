@@ -1,18 +1,18 @@
-import os
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_SwdbrNq1QIi4@ep-withered-mouse-a40or4mx-pooler.us-east-1.aws.neon.tech/webhook-url?sslmode=require")
-    # REDIS_URL: str = os.getenv("REDIS_URL", "redis://redis:6379/0")
-    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    MAX_RETRY_ATTEMPTS: int = int(os.getenv("MAX_RETRY_ATTEMPTS", "5"))
-    LOG_RETENTION_HOURS: int = int(os.getenv("LOG_RETENTION_HOURS", "72"))
-    WEBHOOK_TIMEOUT: int = int(os.getenv("WEBHOOK_TIMEOUT","10"))
+    DATABASE_URL: str
+    REDIS_URL: str = "redis://redis:6379/0"  # Default fallback
+    MAX_RETRY_ATTEMPTS: int = 5
+    LOG_RETENTION_HOURS: int = 72
+    WEBHOOK_TIMEOUT: int = 10
+    SECRET_KEY: str = "changeme"  # Add this if you plan to use signature verification
 
     model_config = ConfigDict(
         env_file=".env",
-        from_attributes=True,
+        env_file_encoding="utf-8",
+        case_sensitive=False,
     )
 
 settings = Settings()
