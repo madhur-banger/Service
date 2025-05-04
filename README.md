@@ -2,8 +2,6 @@
 
 A robust backend system built with **FastAPI** and **Celery** to ingest, queue, and reliably deliver webhook events with retries, logging, caching, and analytics — fully containerized using **Docker Compose**.
 
-https://webhook-service-nmzc.onrender.com/
-
 ---
 
 ##  Features
@@ -77,18 +75,19 @@ README.md
 - Docker & Docker Compose installed
 - Ports `8000`, `5432`, and `6379` available
 
-###  Run the app
+##  Run the app
 
-# Clone the repo
+### Clone the repo
 
 ```bash
 git clone https://github.com/madhur-banger/Service
 cd service
 ```
-```
 
-# Build and start containers
+### Build and start containers
+```bash
 docker-compose up --build
+```
 
 
 * API available at: `http://localhost:8000`
@@ -241,3 +240,5 @@ Assuming deployment on **Render Free Tier** or **Railway**:
 * [NeonDB](https://neon.tech/)
 * [Docker](https://docker.com/)
 * AI Help: ChatGPT by OpenAI (for formatting, examples, retry logic)
+
+
