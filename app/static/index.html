@@ -3,475 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Delivery Service</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Webhook Delivery System | Powered by FastAPI</title>
     <style>
-        .container { max-width: 900px; margin-top: 30px; }
-        .card { margin-bottom: 20px; }
-        .badge { margin-left: 5px; }
-        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; }
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --dark: #111827;
+            --light: #f9fafb;
+            --gray: #6b7280;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--dark);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .hero {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: white;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            background-color: #0ea271;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .features {
+            padding: 4rem 0;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+        }
+        
+        .tech-stack {
+            padding: 4rem 0;
+            background-color: #f3f4f6;
+        }
+        
+        .tech-stack h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .tech-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 3rem;
+        }
+        
+        .tech-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .tech-logo-img {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        .tech-logo p {
+            font-weight: bold;
+        }
+        
+        .cta {
+            padding: 5rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: white;
+            clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .cta p {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .webhook-animation {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        
+        .webhook-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            left: -20px;
+        }
+        
+        .webhook-line {
+            position: absolute;
+            height: 4px;
+            background-color: var(--gray);
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            z-index: -1;
+        }
+        
+        .server-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .server-start {
+            left: 10%;
+        }
+        
+        .server-end {
+            right: 10%;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tech-logos {
+                gap: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mb-4">Webhook Delivery Service</h1>
-        
-        <ul class="nav nav-tabs mb-4" id="mainTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="subscriptions-tab" data-bs-toggle="tab" data-bs-target="#subscriptions" type="button">Subscriptions</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery" type="button">Delivery Status</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#test" type="button">Test Webhook</button>
-            </li>
-        </ul>
-        
-        <div class="tab-content" id="mainTabContent">
-            <!-- Subscriptions Tab -->
-            <div class="tab-pane fade show active" id="subscriptions" role="tabpanel">
-                <div class="d-flex justify-content-between mb-3">
-                    <h3>Subscriptions</h3>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubscriptionModal">Add Subscription</button>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Webhook<span>Delivery</span></div>
+                <div>
+                    <a href="https://webhook-service-nmzc.onrender.com/docs" class="btn">Documentation</a>
                 </div>
-                
-                <div id="subscriptionsList" class="mb-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <p class="card-text">Loading subscriptions...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Delivery Status Tab -->
-            <div class="tab-pane fade" id="delivery" role="tabpanel">
-                <h3 class="mb-3">Delivery Status</h3>
-                
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Check Delivery Status</h5>
-                        <div class="input-group mb-3">
-                            <input type="text" id="deliveryIdInput" class="form-control" placeholder="Enter Delivery ID">
-                            <button class="btn btn-primary" id="checkDeliveryBtn">Check</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="deliveryDetails" class="d-none">
-                    <h4>Delivery Details</h4>
-                    <div id="deliveryInfo" class="mb-3"></div>
-                    
-                    <h5>Delivery Attempts</h5>
-                    <div id="deliveryAttempts"></div>
-                </div>
-            </div>
-            
-            <!-- Test Webhook Tab -->
-            <div class="tab-pane fade" id="test" role="tabpanel">
-                <h3 class="mb-3">Test Webhook</h3>
-                
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Send Test Webhook</h5>
-                        
-                        <div class="mb-3">
-                            <label for="subscriptionSelect" class="form-label">Subscription</label>
-                            <select class="form-select" id="subscriptionSelect">
-                                <option value="">Select a subscription</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="payloadInput" class="form-label">Payload (JSON)</label>
-                            <textarea class="form-control" id="payloadInput" rows="5">{"event": "test", "data": {"message": "Hello, World!"}}</textarea>
-                        </div>
-                        
-                        <button class="btn btn-primary" id="sendWebhookBtn">Send Webhook</button>
-                    </div>
-                </div>
-                
-                <div id="webhookResult" class="mt-3 d-none">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Result</h5>
-                            <pre id="webhookResultContent"></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </nav>
         </div>
-    </div>
-    
-    <!-- Add Subscription Modal -->
-    <div class="modal fade" id="addSubscriptionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="subscriptionModalTitle">Add Subscription</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addSubscriptionForm">
-                        <div class="mb-3">
-                            <label for="nameInput" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="nameInput" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="targetUrlInput" class="form-label">Target URL</label>
-                            <input type="url" class="form-control" id="targetUrlInput" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="secretKeyInput" class="form-label">Secret Key (Optional)</label>
-                            <input type="text" class="form-control" id="secretKeyInput">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveSubscriptionBtn">Save</button>
-                    <input type="hidden" id="editingSubscriptionId">
+    </header>
 
+    <section class="hero">
+        <div class="container">
+            <h1>Reliable Webhook Delivery System</h1>
+            <p>A high-performance webhook delivery service built with FastAPI, Celery, Redis, and PostgreSQL for guaranteed delivery and scalability.</p>
+            <a href="https://webhook-service-nmzc.onrender.com/docs" class="btn btn-primary">Explore API Docs</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📨</div>
+                    <h3>Reliable Delivery</h3>
+                    <p>Built-in retry mechanisms ensure your webhooks are delivered even when destination services are temporarily unavailable.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>High Performance</h3>
+                    <p>Asynchronous processing with Celery and Redis delivers thousands of webhooks per second with minimal latency.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Comprehensive Logging</h3>
+                    <p>Track the status of every webhook delivery attempt with detailed logs stored in PostgreSQL.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure</h3>
+                    <p>HMAC signature verification ensures webhook authenticity and prevents tampering during transmission.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Monitor success rates, latency, and error patterns through an intuitive dashboard.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Scalable Architecture</h3>
+                    <p>Horizontally scalable system designed to handle growing webhook volumes without performance degradation.</p>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </section>
+
+    <section class="webhook-demo">
+        <div class="container">
+            <div class="webhook-animation">
+                <div class="webhook-line"></div>
+                <div class="server-icon server-start">🌐</div>
+                <div class="webhook-dot" id="webhookDot"></div>
+                <div class="server-icon server-end">🖥️</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-stack">
+        <div class="container">
+            <h2>Built with Modern Technology</h2>
+            <div class="tech-logos">
+                <div class="tech-logo">
+                    <div class="tech-logo-img">🚀</div>
+                    <p>FastAPI</p>
+                </div>
+                <div class="tech-logo">
+                    <div class="tech-logo-img">🥬</div>
+                    <p>Celery</p>
+                </div>
+                <div class="tech-logo">
+                    <div class="tech-logo-img">🔄</div>
+                    <p>Redis</p>
+                </div>
+                <div class="tech-logo">
+                    <div class="tech-logo-img">🐘</div>
+                    <p>PostgreSQL</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Get Started?</h2>
+            <p>Explore our comprehensive API documentation to integrate our webhook delivery system into your application.</p>
+            <a href="https://service-vef3.onrender.com/docs" class="btn">Access Documentation</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 WebhookDelivery System. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script>
-        // API endpoints
-        const API_URL = 'http://localhost:8000/api';
-        
-        // Load subscriptions on page load
+        // Animation for webhook dot
         document.addEventListener('DOMContentLoaded', function() {
-            loadSubscriptions();
+            const dot = document.getElementById('webhookDot');
             
-            // Button event listeners
-            document.getElementById('saveSubscriptionBtn').addEventListener('click', saveSubscription);
-            document.getElementById('checkDeliveryBtn').addEventListener('click', checkDelivery);
-            document.getElementById('sendWebhookBtn').addEventListener('click', sendWebhook);
+            function animateDot() {
+                dot.style.left = '-20px';
+                setTimeout(() => {
+                    dot.style.transition = 'left 3s ease-in-out';
+                    dot.style.left = '100%';
+                    
+                    setTimeout(() => {
+                        dot.style.transition = 'none';
+                        dot.style.left = '-20px';
+                        
+                        setTimeout(() => {
+                            animateDot();
+                        }, 500);
+                    }, 3000);
+                }, 500);
+            }
+            
+            animateDot();
         });
         
-        // Load subscriptions
-        async function loadSubscriptions() {
-            try {
-                const response = await fetch(`${API_URL}/subscriptions/`);
-                const subscriptions = await response.json();
-                
-                const subscriptionsList = document.getElementById('subscriptionsList');
-                const subscriptionSelect = document.getElementById('subscriptionSelect');
-                
-                // Clear existing options except the placeholder
-                while (subscriptionSelect.options.length > 1) {
-                    subscriptionSelect.remove(1);
-                }
-                
-                if (subscriptions.length === 0) {
-                    subscriptionsList.innerHTML = `
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <p class="card-text">No subscriptions found. Add one to get started.</p>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let html = '';
-                subscriptions.forEach(sub => {
-                    // Add to subscription list
-                    html += `
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="card-title">${sub.name}</h5>
-                                    <span class="badge ${sub.is_active ? 'bg-success' : 'bg-danger'}">
-                                        ${sub.is_active ? 'Active' : 'Inactive'}
-                                    </span>
-                                </div>
-                                <h6 class="card-subtitle mb-2 text-muted">ID: ${sub.id}</h6>
-                                <p class="card-text">Target URL: ${sub.target_url}</p>
-                                <p class="card-text">Secret Key: ${sub.secret_key ? '••••••••' : 'None'}</p>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="viewDeliveries('${sub.id}')">View Deliveries</button>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editSubscription('${sub.id}', '${sub.name}', '${sub.target_url}', '${sub.secret_key || ''}')">Edit</button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSubscription('${sub.id}')">Delete</button>
-                                </div>
-
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Add to subscription select
-                    const option = document.createElement('option');
-                    option.value = sub.id;
-                    option.textContent = sub.name;
-                    subscriptionSelect.appendChild(option);
+        // Add smooth scrolling for all anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
                 });
-                
-                subscriptionsList.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading subscriptions:', error);
-                document.getElementById('subscriptionsList').innerHTML = `
-                    <div class="alert alert-danger">
-                        Error loading subscriptions. Please try again.
-                    </div>
-                `;
-            }
-        }
-        
-        // Save subscription
-        async function saveSubscription() {
-            const nameInput = document.getElementById('nameInput');
-            const targetUrlInput = document.getElementById('targetUrlInput');
-            const secretKeyInput = document.getElementById('secretKeyInput');
-            const editingId = document.getElementById('editingSubscriptionId').value;
-
-            const subscriptionData = {
-                name: nameInput.value,
-                target_url: targetUrlInput.value,
-                secret_key: secretKeyInput.value || null
-            };
-
-            try {
-                let response;
-                if (editingId) {
-                    // Update existing subscription
-                    response = await fetch(`${API_URL}/subscriptions/${editingId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(subscriptionData)
-                    });
-                } else {
-                    // Create new subscription
-                    response = await fetch(`${API_URL}/subscriptions/`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(subscriptionData)
-                    });
-                }
-
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('addSubscriptionModal')).hide();
-                    nameInput.value = '';
-                    targetUrlInput.value = '';
-                    secretKeyInput.value = '';
-                    document.getElementById('editingSubscriptionId').value = '';
-                    document.getElementById('subscriptionModalTitle').textContent = 'Add Subscription';
-                    loadSubscriptions();
-                } else {
-                    const error = await response.json();
-                    alert(`Error: ${error.detail || 'Failed to save subscription'}`);
-                }
-            } catch (error) {
-                console.error('Error saving subscription:', error);
-                alert('Error saving subscription. Please try again.');
-            }
-        }
-        
-        // Delete subscription
-        async function deleteSubscription(id) {
-            if (!confirm('Are you sure you want to delete this subscription?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_URL}/subscriptions/${id}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    loadSubscriptions();
-                } else {
-                    const error = await response.json();
-                    alert(`Error: ${error.detail || 'Failed to delete subscription'}`);
-                }
-            } catch (error) {
-                console.error('Error deleting subscription:', error);
-                alert('Error deleting subscription. Please try again.');
-            }
-        }
-        
-        // Check delivery status
-        async function checkDelivery() {
-            const deliveryId = document.getElementById('deliveryIdInput').value.trim();
-            if (!deliveryId) {
-                alert('Please enter a delivery ID');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_URL}/analytics/deliveries/${deliveryId}`);
-                
-                if (response.ok) {
-                    const delivery = await response.json();
-                    displayDeliveryDetails(delivery);
-                } else {
-                    const error = await response.json();
-                    alert(`Error: ${error.detail || 'Failed to fetch delivery details'}`);
-                }
-            } catch (error) {
-                console.error('Error checking delivery:', error);
-                alert('Error checking delivery. Please try again.');
-            }
-        }
-
-        function editSubscription(id, name, url, secretKey) {
-            document.getElementById('nameInput').value = name;
-            document.getElementById('targetUrlInput').value = url;
-            document.getElementById('secretKeyInput').value = secretKey || '';
-            document.getElementById('editingSubscriptionId').value = id;
-            document.getElementById('subscriptionModalTitle').textContent = 'Edit Subscription';
-            
-            const modal = new bootstrap.Modal(document.getElementById('addSubscriptionModal'));
-            modal.show();
-        }
-
-        
-        // Display delivery details
-        function displayDeliveryDetails(delivery) {
-            const deliveryDetails = document.getElementById('deliveryDetails');
-            const deliveryInfo = document.getElementById('deliveryInfo');
-            const deliveryAttempts = document.getElementById('deliveryAttempts');
-            
-            deliveryInfo.innerHTML = `
-                <div class="card">
-                    <div class="card-body">
-                        <h6>Delivery ID: ${delivery.id}</h6>
-                        <p>Subscription ID: ${delivery.subscription_id}</p>
-                        <p>Status: <span class="badge ${getStatusBadgeClass(delivery.status)}">${delivery.status}</span></p>
-                        <p>Created: ${new Date(delivery.created_at).toLocaleString()}</p>
-                        <p>Attempts: ${delivery.attempts_count}</p>
-                    </div>
-                </div>
-            `;
-            
-            let attemptsHtml = '';
-            if (delivery.attempts && delivery.attempts.length > 0) {
-                delivery.attempts.forEach(attempt => {
-                    attemptsHtml += `
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <h6>Attempt #${attempt.attempt_number}</h6>
-                                    <span class="badge ${attempt.status === 'SUCCESS' ? 'bg-success' : 'bg-danger'}">
-                                        ${attempt.status}
-                                    </span>
-                                </div>
-                                <p>Time: ${new Date(attempt.timestamp).toLocaleString()}</p>
-                                ${attempt.status_code ? `<p>Status Code: ${attempt.status_code}</p>` : ''}
-                                ${attempt.error ? `<p>Error: ${attempt.error}</p>` : ''}
-                                ${attempt.next_retry_at ? `<p>Next Retry: ${new Date(attempt.next_retry_at).toLocaleString()}</p>` : ''}
-                                ${attempt.response ? `<p>Response: <pre>${attempt.response}</pre></p>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                attemptsHtml = '<p>No delivery attempts yet.</p>';
-            }
-            
-            deliveryAttempts.innerHTML = attemptsHtml;
-            deliveryDetails.classList.remove('d-none');
-        }
-        
-        // Send test webhook
-        async function sendWebhook() {
-            const subscriptionId = document.getElementById('subscriptionSelect').value;
-            const payload = document.getElementById('payloadInput').value;
-            
-            if (!subscriptionId) {
-                alert('Please select a subscription');
-                return;
-            }
-            
-            try {
-                // Parse payload
-                const payloadData = JSON.parse(payload);
-                
-                const response = await fetch(`${API_URL}/webhooks/ingest/${subscriptionId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payloadData)
-                });
-                
-                const result = await response.json();
-                
-                const webhookResult = document.getElementById('webhookResult');
-                const webhookResultContent = document.getElementById('webhookResultContent');
-                
-                webhookResultContent.textContent = JSON.stringify(result, null, 2);
-                webhookResult.classList.remove('d-none');
-                
-                // Auto-fill delivery ID in the delivery tab
-                document.getElementById('deliveryIdInput').value = result.delivery_id;
-            } catch (error) {
-                console.error('Error sending webhook:', error);
-                alert('Error sending webhook. Please check your payload is valid JSON.');
-            }
-        }
-        
-        // View deliveries for a subscription
-        async function viewDeliveries(subscriptionId) {
-            try {
-                const response = await fetch(`${API_URL}/analytics/subscriptions/${subscriptionId}/deliveries`);
-                const deliveries = await response.json();
-                
-                // Switch to delivery tab
-                document.getElementById('delivery-tab').click();
-                
-                // Display a list of deliveries
-                const deliveryDetails = document.getElementById('deliveryDetails');
-                const deliveryInfo = document.getElementById('deliveryInfo');
-                
-                let html = `<h5>Recent Deliveries for Subscription</h5>`;
-                
-                if (deliveries.length === 0) {
-                    html += '<p>No deliveries found for this subscription.</p>';
-                } else {
-                    html += '<div class="list-group">';
-                    deliveries.forEach(delivery => {
-                        html += `
-                            <a href="#" class="list-group-item list-group-item-action" onclick="event.preventDefault(); document.getElementById('deliveryIdInput').value = '${delivery.id}'; checkDelivery();">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">${delivery.id}</h6>
-                                    <span class="badge ${getStatusBadgeClass(delivery.status)}">${delivery.status}</span>
-                                </div>
-                                <p class="mb-1">Created: ${new Date(delivery.created_at).toLocaleString()}</p>
-                                <small>Attempts: ${delivery.attempts_count}</small>
-                            </a>
-                        `;
-                    });
-                    html += '</div>';
-                }
-                
-                deliveryInfo.innerHTML = html;
-                deliveryDetails.classList.remove('d-none');
-                
-            } catch (error) {
-                console.error('Error loading deliveries:', error);
-                alert('Error loading deliveries. Please try again.');
-            }
-        }
-        
-        // Helper to get badge class based on status
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'DELIVERED':
-                    return 'bg-success';
-                case 'FAILED':
-                    return 'bg-danger';
-                case 'PROCESSING':
-                    return 'bg-warning';
-                case 'PENDING':
-                    return 'bg-info';
-                default:
-                    return 'bg-secondary';
-            }
-        }
+            });
+        });
     </script>
 </body>
 </html>
