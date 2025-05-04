@@ -1,11 +1,8 @@
-Absolutely! Here's a **detailed, production-quality `README.md`** in proper **Markdown format** for your **Webhook Delivery Service** project. It covers all deliverables: setup, architecture, APIs, deployment, and more — cleanly formatted and ready to go.
+# Webhook Delivery Service
 
----
+A robust backend system built with **FastAPI** and **Celery** to ingest, queue, and reliably deliver webhook events with retries, logging, caching, and analytics — fully containerized using **Docker Compose**.
 
-
-  Webhook Delivery Service
-
-A robust backend system built with FastAPI** and **Celery** to ingest, queue, and reliably deliver webhook events with retries, logging, caching, and analytics — fully containerized using **Docker Compose**.
+https://webhook-service-nmzc.onrender.com/
 
 ---
 
@@ -165,7 +162,7 @@ curl -X POST http://localhost:8000/api/webhooks/ingest/{subscription_id} \
 -d '{"event": "user.signup", "data": {"user_id": 123}}'
 ```
 
-### 📈 Get Delivery Logs
+###  Get Delivery Logs
 
 ```bash
 curl http://localhost:8000/api/analytics/subscriptions/{subscription_id}/deliveries
@@ -173,7 +170,7 @@ curl http://localhost:8000/api/analytics/subscriptions/{subscription_id}/deliver
 
 ---
 
-## 💸 Cost Estimation (Free Tier)
+##  Cost Estimation (Free Tier)
 
 Assuming deployment on **Render Free Tier** or **Railway**:
 
@@ -186,7 +183,7 @@ Assuming deployment on **Render Free Tier** or **Railway**:
 
 ---
 
-## 🗃️ Database Schema ing
+##  Database Schema ing
 
 ### `subscriptions` table
 
@@ -211,7 +208,7 @@ Assuming deployment on **Render Free Tier** or **Railway**:
 
 ---
 
-## 🔁 Retry Strategy
+##  Retry Strategy
 
 * **Initial Retry**: After 10s
 * **Backoff Steps**: 10s → 30s → 1m → 5m → 15m
@@ -221,19 +218,10 @@ Assuming deployment on **Render Free Tier** or **Railway**:
 
 ---
 
-## 🧹 Log Retention Policy
+##  Log Retention Policy
 
 * All delivery logs are stored with timestamps
 * A periodic Celery task runs every hour to purge logs older than **72 hours**
-
----
-
-## 🌐 Deployment
-
-> 📍 Replace with actual live URL
-
-* **Live App**: [https://your-app.onrender.com](https://your-app.onrender.com)
-* Accessible via Swagger UI and minimal HTML UI
 
 ---
 
@@ -253,22 +241,3 @@ Assuming deployment on **Render Free Tier** or **Railway**:
 * [NeonDB](https://neon.tech/)
 * [Docker](https://docker.com/)
 * AI Help: ChatGPT by OpenAI (for formatting, examples, retry logic)
-
----
-
-##  Contributors
-
-* [Madhur Banger](https://github.com/madhur-banger)
-
----
-
-##  Questions?
-
-For inquiries or issues, reach out via [GitHub](https://github.com/madhur-banger) or email: [madhur.cloudevops@gmail.com](mailto:madhur.cloudevops@gmail.com)
-
-```
-
----
-
-Let me know if you’d like a matching `docker-compose.yml` section, architecture diagram, or Swagger screenshot added.
-```
