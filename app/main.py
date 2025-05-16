@@ -29,7 +29,7 @@ app.include_router(router, prefix="/api")
 
 # Mount static files
 if os.path.exists("app/static"):
-    app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
+    app.mount("/app", StaticFiles(directory="app/static", html=True), name="static")
 
 @app.get("/")
 async def root():
