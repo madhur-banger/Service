@@ -144,28 +144,117 @@ All routes are prefixed with `/api`.
 
 ###  Create Subscription
 
+---
+
+### 1. Create Subscription
+
 ```bash
 curl -X POST http://localhost:8000/api/subscriptions/ \
--H "Content-Type: application/json" \
--d '{
-  "target_url": "https://example.com/webhook",
-  "secret": "super-secret-key"
-}'
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "string",
+    "target_url": "https://webhook.site/62c2b6c8-7dc7-4087-b3f8-0d38dbd15bcd",
+    "secret_key": "string"
+  }'
 ```
 
-###  Ingest Webhook
+---
+
+### 2. Read Subscriptions (List)
 
 ```bash
-curl -X POST http://localhost:8000/api/webhooks/ingest/{subscription_id} \
--H "Content-Type: application/json" \
--d '{"event": "user.signup", "data": {"user_id": 123}}'
+curl -X GET "http://localhost:8000/api/subscriptions/?skip=0&limit=100" \
+  -H "accept: application/json"
 ```
 
-###  Get Delivery Logs
+---
+
+### 3. Read Subscription (by ID)
 
 ```bash
-curl http://localhost:8000/api/analytics/subscriptions/{subscription_id}/deliveries
+curl -X GET http://localhost:8000/api/subscriptions/{subscription_id} \
+  -H "accept: application/json"
 ```
+
+*Replace `{subscription_id}` with the actual UUID.*
+
+---
+
+### 4. Update Subscription (by ID)
+
+```bash
+curl -X PUT http://localhost:8000/api/subscriptions/{subscription_id} \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "string",
+    "target_url": "https://example.com/",
+    "secret_key": "string",
+    "is_active": true
+  }'
+```
+
+*Replace `{subscription_id}` with the actual UUID.*
+
+---
+
+### 5. Delete Subscription (by ID)
+
+```bash
+curl -X DELETE http://localhost:8000/api/subscriptions/{subscription_id} \
+  -H "accept: application/json"
+```
+
+*Replace `{subscription_id}` with the actual UUID.*
+
+---
+
+### 6. Update Subscription Event Types
+
+```bash
+curl -X PUT http://localhost:8000/api/subscriptions/subscriptions/{subscription_id}/event-types \
+  -H "Content-Type: application/json" \
+  -d '[
+    "event_type_1",
+    "event_type_2"
+  ]'
+```
+
+*Replace `{subscription_id}` with actual UUID.*
+
+---
+
+### 7. Ingest Webhook for Subscription
+
+```bash
+curl -X POST "http://localhost:8000/api/webhooks/ingest/{subscription_id}?event_type=order.created" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+*Replace `{subscription_id}` with actual UUID and `event_type` as needed.*
+
+---
+
+### 8. Ingest Webhook To All
+
+```bash
+curl -X POST "http://localhost:8000/api/webhooks/ingest?event_type=order.created" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+---
+
+### 9. Get Delivery Status (by delivery\_id)
+
+```bash
+curl -X GET http://localhost:8000/api/analytics/deliveries/{delivery_id} \
+  -H "accept: application/json"
+```
+
+*Replace `{delivery_id}` with actual UUID.*
+
+
 
 ---
 
@@ -240,5 +329,3 @@ Assuming deployment on **Render Free Tier** or **Railway**:
 * [NeonDB](https://neon.tech/)
 * [Docker](https://docker.com/)
 * AI Help: ChatGPT by OpenAI (for formatting, examples, retry logic)
-
-

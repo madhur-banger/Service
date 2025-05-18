@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer, Text, Enum, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from app.db.types import GUID
 from sqlalchemy.sql import func
 from app.db.base import Base
 import enum
@@ -18,7 +18,7 @@ class AttemptStatus(str, enum.Enum):
 class Subscription(Base):
     __tablename__ = "subscriptions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     target_url = Column(String, nullable=False)
     secret_key = Column(String, nullable=True)
@@ -31,8 +31,8 @@ class Subscription(Base):
 class WebhookDelivery(Base):
     __tablename__ = "webhook_deliveries"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    subscription_id = Column(UUID(as_uuid=True), ForeignKey("subscriptions.id"))
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    subscription_id = Column(GUID(), ForeignKey("subscriptions.id"))
     payload = Column(JSON, nullable=False)
     status = Column(Enum(DeliveryStatus), default=DeliveryStatus.PENDING)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -44,8 +44,8 @@ class WebhookDelivery(Base):
 class DeliveryAttempt(Base):
     __tablename__ = "delivery_attempts"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    delivery_id = Column(UUID(as_uuid=True), ForeignKey("webhook_deliveries.id"))
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    delivery_id = Column(GUID(), ForeignKey("webhook_deliveries.id"))
     attempt_number = Column(Integer, nullable=False)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     status_code = Column(Integer, nullable=True)
